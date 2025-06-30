@@ -34,9 +34,11 @@
 </template>
 
 <script setup>
-import {  ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { defineProps } from 'vue' ///////////////  
+import { useStore } from 'vuex'
+import { defineProps } from 'vue'
+
 const props = defineProps({
   title: String,
   products: {
@@ -47,7 +49,9 @@ const props = defineProps({
 const visible = ref([])
 const showAll = ref(false)
 const maxToShow = 8
+const store = useStore()
 const router = useRouter()
+const showLoginDialog = inject('showLoginDialog')
 
 function setVisible(idx) {
   if (!Array.isArray(visible.value)) {
@@ -62,10 +66,18 @@ const displayedProducts = computed(() => {
 })
 
 function toggleShowAll() {
+  if (!store.state.user.isLoggedIn) {
+    showLoginDialog()
+    return
+  }
   showAll.value = !showAll.value
 }
 
 function goToDetail(product) {
+  if (!store.state.user.isLoggedIn) {
+    showLoginDialog()
+    return
+  }
   router.push({ name: 'ShopDetail', params: { id: product.id } })
 }
 </script>
